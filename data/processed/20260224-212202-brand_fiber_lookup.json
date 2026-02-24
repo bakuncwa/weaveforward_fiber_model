@@ -1,0 +1,50 @@
+{
+  "columbia": {
+    "brand": "columbia",
+    "fibers": {
+      "nylon": 38.3,
+      "elastane": 5.2,
+      "polyester": 56.5
+    },
+    "bio_share": 0.0,
+    "biodeg_tier": "low",
+    "item_count": 4,
+    "source": "multinational"
+  },
+  "everlane": {
+    "brand": "everlane",
+    "fibers": {
+      "alpaca": 32.4,
+      "wool": 8.8,
+      "tencel": 35.3,
+      "cotton": 23.5
+    },
+    "bio_share": 67.6,
+    "biodeg_tier": "medium",
+    "item_count": 5,
+    "source": "multinational"
+  },
+  "mango": {
+    "brand": "mango",
+    "fibers": {
+      "cotton": 100.0
+    },
+    "bio_share": 100.0,
+    "biodeg_tier": "high",
+    "item_count": 11,
+    "source": "multinational"
+  },
+  "penshoppe": {
+    "brand": "penshoppe",
+    "fibers": {
+      "polyester": 23.9,
+      "cotton": 22.1,
+      "nylon": 26.5,
+      "viscose": 27.6
+    },
+    "bio_share": 49.65,
+    "biodeg_tier": "low",
+    "item_count": 51,
+    "source": "philippine"
+  }
+}
