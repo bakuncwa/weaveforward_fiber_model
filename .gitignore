@@ -1,6 +1,3 @@
-# ── Excluded notebooks ────────────────────────────────────────────────────
-notebooks/fiber_recommendation_model.ipynb
-
 # ── Python ────────────────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
