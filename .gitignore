@@ -16,14 +16,10 @@ build/
 venv/
 env/
 
-# ── Data & model outputs ──────────────────────────────────────────────────
-data/raw/
-data/processed/
-data/webscraped_data/
+# ── Spark runtime artifacts (not source data) ───────────────────────────
 data/spark_warehouse/
-models/*.cbm
-models/*.json
-data/visualizations/
+derby.log
+metastore_db/
 
 # ── Jupyter ───────────────────────────────────────────────────────────────
 .ipynb_checkpoints/
@@ -33,6 +29,4 @@ data/visualizations/
 .DS_Store
 .AppleDouble
 
-# ── Spark ─────────────────────────────────────────────────────────────────
-derby.log
-metastore_db/
+
