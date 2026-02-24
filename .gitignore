@@ -1,0 +1,38 @@
+# ── Excluded notebooks ────────────────────────────────────────────────────
+notebooks/fiber_recommendation_model.ipynb
+
+# ── Python ────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# ── Environments ──────────────────────────────────────────────────────────
+.env
+.venv
+venv/
+env/
+
+# ── Data & model outputs ──────────────────────────────────────────────────
+data/raw/
+data/processed/
+data/webscraped_data/
+data/spark_warehouse/
+models/*.cbm
+models/*.json
+data/visualizations/
+
+# ── Jupyter ───────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── macOS ─────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+
+# ── Spark ─────────────────────────────────────────────────────────────────
+derby.log
+metastore_db/
