@@ -51,18 +51,18 @@ The pipeline solves garment-to-artisan matching by:
 
 ```mermaid
 flowchart TD
-    A["Web Scraper\nwebscraped_catalog.csv source"] -->|"scraper.py"| B["webscraped_catalog.csv\nraw brand fiber records"]
-    B --> C["Spark SQL\nfeature transforms + UDFs"]
-    C --> D["expand_fibers()\nextract per-fiber pct columns"]
-    D --> E["df_base\n71 donor request rows"]
-    F["Artisan Registry\n6 synthetic NCR profiles"] --> G
-    E --> G["Cross-Join\ndf_pairs — 426 rows"]
-    G --> H["Label Computation\nis_match gates:\npct_target_fiber ≥ 85%\nbiodeg_score ≥ min\ndistance_km ≤ max_dist"]
-    H --> I["Train / Test Split\n340 train / 86 test\nstratified on is_match"]
-    I --> J["Optuna HPO\n30 trials · 3-fold CV\nmaximize F1-binary"]
-    J --> K["CatBoost Training\niterations=611 · depth=9\nlr=0.2256"]
-    K --> L["Model Artifacts\ncatboost_fiber_match.cbm\nfiber_match_metadata.json\nfiber_match_eval_report_latest.json"]
-    L --> M["Django API Export\nvia DJANGO_ML_DIR env var\n/api/match-predict/"]
+    A["Web Scraper — webscraped_catalog.csv source"] -->|"scraper.py"| B["webscraped_catalog.csv — raw brand fiber records"]
+    B --> C["Spark SQL — feature transforms + UDFs"]
+    C --> D["expand_fibers() — extract per-fiber pct columns"]
+    D --> E["df_base — 71 donor request rows"]
+    F["Artisan Registry — 6 synthetic NCR profiles"] --> G
+    E --> G["Cross-Join — df_pairs — 426 rows"]
+    G --> H["Label Computation — is_match gates: pct_target_fiber ≥ 85% / biodeg_score ≥ min / distance_km ≤ max_dist"]
+    H --> I["Train / Test Split — 340 train / 86 test — stratified on is_match"]
+    I --> J["Optuna HPO — 30 trials · 3-fold CV — maximize F1-binary"]
+    J --> K["CatBoost Training — iterations=611 · depth=9 · lr=0.2256"]
+    K --> L["Model Artifacts — catboost_fiber_match.cbm / fiber_match_metadata.json / fiber_match_eval_report_latest.json"]
+    L --> M["Django API Export — via DJANGO_ML_DIR env var — /api/match-predict/"]
 ```
 
 ---
@@ -385,22 +385,17 @@ erDiagram
 
 ---
 
-## Technical Contributions
+## Roles & Responsibilities
+
+### Technical Contributions
 
 - Built an automated ETL pipeline web-scraping brand fiber composition data from fashion retailers using custom scrapers (`scraper.py`), producing `webscraped_catalog.csv` — the real-data source for all downstream fiber feature engineering.
-
 - Engineered 30 features via PySpark / Spark SQL — implemented `expand_fibers()` UDF to extract per-fiber percentage columns (`pct_alpaca`, `pct_cotton`, `pct_elastane`, `pct_nylon`, `pct_polyester`, `pct_tencel`, `pct_viscose`) from raw JSON fiber composition; computed `pct_target_fiber`, `biodeg_target_fiber`, and `biodeg_score` per pair; added `clip(upper=100.0)` guard to handle malformed fiber JSON values exceeding 100%.
-
 - Constructed a donation × artisan cross-join pair matrix (71 donors × 6 artisans = 426 rows) and computed binary `is_match` labels using three-gate logic: fiber share ≥ 85%, biodegradability score ≥ artisan minimum, and haversine distance ≤ artisan collection radius.
-
 - Geocoded 71 synthetic donor request records across NCR barangays using Nominatim OSM (live HTTP, cached via 4-F Spark persist) and implemented haversine distance computation for each donor–artisan pair.
-
 - Optimized a CatBoost GBDT binary classifier (`is_match`) via Optuna (30 trials, 3-fold stratified CV, maximize binary F1) — best params: iterations=611, depth=9, lr=0.2256, l2_leaf_reg=8.816; achieved 97.67% accuracy, 95.24% F1-binary, 100.00% precision, 90.91% recall, and 1.0000 ROC-AUC on the 86-row stratified test set.
-
 - Produced a normalized confusion matrix and FP/FN bar chart confirming zero false routing decisions (Precision = 1.00) — 10/11 true matches correctly captured, with the single FN being a distance failure on a 100% target-fiber garment.
-
 - Generated 11 diagnostic visualizations including KDE of biodegradability scores, donation volume by NCR city, fiber KPI heatmaps, a Spearman correlation heatmap across fiber percentages and biodeg/demand features, brand distribution, and a SHAP summary plot identifying `pct_target_fiber`, `distance_km`, and `biodeg_target_fiber` as the primary `is_match` drivers.
-
 - Exported the trained model artifacts (`catboost_fiber_match.cbm`, `fiber_match_metadata.json`, `fiber_match_eval_report_latest.json`) to the WeaveForward Django API via `DJANGO_ML_DIR` environment variable for live inference at `/api/match-predict/`.
 
 ---
