@@ -1,4 +1,4 @@
-# WeaveForward: Fiber–Artisan Match Pipeline
+# WeaveForward: Fiber–Artisan Match Pipeline & Recommendation Model
 
 **ML Repository:** [weaveforward_fiber_model](https://github.com/bakuncwa/weaveforward_fiber_model)
 
@@ -8,7 +8,7 @@
 
 ## Project Description
 
-**The WeaveForward Fiber-Artisan Match Pipeline & Model** is a machine learning pipeline that predicts whether a garment donation request should be routed to a specific artisan business for upcycling. The model scores every (donor request, artisan) pair and outputs `is_match = 1` if the garment's fiber composition, biodegradability score, and geographic proximity all meet the artisan's material requirements.
+**The WeaveForward Fiber-Artisan Match Pipeline & Recommendation Model** is a machine learning pipeline that predicts whether a garment donation request should be routed to a specific artisan business for upcycling. The model scores every (donor request, artisan) pair and outputs `is_match = 1` if the garment's fiber composition, biodegradability score, and geographic proximity all meet the artisan's material requirements.
 
 The pipeline is designed to power the **WeaveForward Django API**, where artisan businesses in Metro Manila receive routed donation requests from the platform's donor-facing interface.
 
