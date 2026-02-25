@@ -50,6 +50,7 @@ The pipeline solves garment-to-artisan matching by:
 ## ETL Pipeline
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart TD
     A["Web Scraper — webscraped_catalog.csv source"] -->|"scraper.py"| B["webscraped_catalog.csv — raw brand fiber records"]
     B --> C["Spark SQL — feature transforms + UDFs"]
