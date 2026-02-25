@@ -51,19 +51,19 @@ The pipeline solves garment-to-artisan matching by:
 
 ```mermaid
 %%{init: {'theme': 'neutral'}}%%
-flowchart TD
-    A["Web Scraper — webscraped_catalog.csv source"] -->|"scraper.py"| B["webscraped_catalog.csv — raw brand fiber records"]
-    B --> C["Spark SQL — feature transforms + UDFs"]
-    C --> D["expand_fibers() — extract per-fiber pct columns"]
-    D --> E["df_base — donor request rows"]
-    F["Artisan Registry — NCR profiles"] --> G
-    E --> G["Cross-Join — df_pairs"]
-    G --> H["Label Computation — is_match gates: pct_target_fiber ≥ 85% / biodeg_score ≥ min / distance_km ≤ max_dist"]
-    H --> I["Train / Test Split — train / test — stratified on is_match"]
-    I --> J["Optuna HPO — 30 trials · 3-fold CV — maximize F1-binary"]
-    J --> K["CatBoost Training — iterations=611 · depth=9 · lr=0.2256"]
-    K --> L["Model Artifacts — catboost_fiber_match.cbm / fiber_match_metadata.json / fiber_match_eval_report_latest.json"]
-    L --> M["Django API Export — via DJANGO_ML_DIR env var — /api/match-predict/"]
+flowchart LR
+    A["Web Scraper<br/>webscraper_extraction.py"] -->|scraper.py| B["webscraped_catalog.csv<br/>raw brand fiber records"]
+    B --> C["Spark SQL<br/>feature transforms + UDFs"]
+    C --> D["expand_fibers()<br/>per-fiber pct columns"]
+    D --> E["df_base<br/>donor request rows"]
+    F["Artisan Registry<br/>NCR profiles"] --> G
+    E --> G["Cross-Join<br/>df_pairs"]
+    G --> H["Label Computation<br/>pct_target_fiber ≥ 85%<br/>biodeg_score ≥ min<br/>distance_km ≤ max_dist"]
+    H --> I["Train / Test Split<br/>stratified on is_match"]
+    I --> J["Optuna HPO<br/>30 trials · 3-fold CV<br/>maximize F1-binary"]
+    J --> K["CatBoost Training<br/>iterations=611 · depth=9<br/>lr=0.2256"]
+    K --> L["Model Artifacts<br/>catboost_fiber_match.cbm<br/>fiber_match_metadata.json<br/>fiber_match_eval_report.json"]
+    L --> M["Django API Export<br/>DJANGO_ML_DIR<br/>/api/match-predict/"]
 ```
 
 ---
