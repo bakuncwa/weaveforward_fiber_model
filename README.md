@@ -54,11 +54,11 @@ flowchart TD
     A["Web Scraper — webscraped_catalog.csv source"] -->|"scraper.py"| B["webscraped_catalog.csv — raw brand fiber records"]
     B --> C["Spark SQL — feature transforms + UDFs"]
     C --> D["expand_fibers() — extract per-fiber pct columns"]
-    D --> E["df_base — 71 donor request rows"]
-    F["Artisan Registry — 6 synthetic NCR profiles"] --> G
-    E --> G["Cross-Join — df_pairs — 426 rows"]
+    D --> E["df_base — donor request rows"]
+    F["Artisan Registry — NCR profiles"] --> G
+    E --> G["Cross-Join — df_pairs"]
     G --> H["Label Computation — is_match gates: pct_target_fiber ≥ 85% / biodeg_score ≥ min / distance_km ≤ max_dist"]
-    H --> I["Train / Test Split — 340 train / 86 test — stratified on is_match"]
+    H --> I["Train / Test Split — train / test — stratified on is_match"]
     I --> J["Optuna HPO — 30 trials · 3-fold CV — maximize F1-binary"]
     J --> K["CatBoost Training — iterations=611 · depth=9 · lr=0.2256"]
     K --> L["Model Artifacts — catboost_fiber_match.cbm / fiber_match_metadata.json / fiber_match_eval_report_latest.json"]
