@@ -51,7 +51,7 @@ The pipeline solves garment-to-artisan matching by:
 
 ```mermaid
 %%{init: {'theme': 'neutral'}}%%
-flowchart LR
+flowchart TD
     A["Web Scraper<br/>webscraper_extraction.py"] -->|scraper.py| B["webscraped_catalog.csv<br/>raw brand fiber records"]
     B --> C["Spark SQL<br/>feature transforms + UDFs"]
     C --> D["expand_fibers()<br/>per-fiber pct columns"]
