@@ -53,7 +53,12 @@ The pipeline solves garment-to-artisan matching by:
 %%{init: {'theme': 'neutral'}}%%
 flowchart TD
     A["Web Scraper<br/>webscraper_extraction.py"] -->|scraper.py| B["webscraped_catalog.csv<br/>raw brand fiber records"]
-    B --> C["Spark SQL<br/>feature transforms + UDFs"]
+    A -->|archive merge · 1-D| B2["webscraped_catalog_archive.csv<br/>first_scraped_at · last_seen_at · is_active"]
+    B --> C1["1-C-3 · BRAND_FIBER_LOOKUP<br/>median fiber profile per brand"]
+    B2 -->|enrich lookup · 1-D| C1
+    C1 -->|live catalog lookup| FB["fiber_approximation() · 1-E<br/>Tier1: brand+type · Tier2: brand<br/>Tier3: type-median · Tier4: global"]
+    B2 -->|discontinued / missing item| FB
+    FB -->|resolved fiber profile| C["Spark SQL<br/>feature transforms + UDFs"]
     C --> D["expand_fibers()<br/>per-fiber pct columns"]
     D --> E["df_base<br/>donor request rows"]
     F["Artisan Registry<br/>NCR profiles"] --> G
@@ -263,7 +268,8 @@ WeaveForward_FiberClassificationML/
 │   ├── spark_warehouse/              # Spark SQL warehouse
 │   ├── visualizations/               # All saved PNG charts
 │   └── webscraped_data/
-│       └── webscraped_catalog.csv    # Scraped brand fiber catalog (real data)
+│       ├── webscraped_catalog.csv           # Scraped brand fiber catalog (latest run)
+│       └── webscraped_catalog_archive.csv   # Cumulative archive — all runs, with is_active flag
 ├── models/
 │   ├── catboost_fiber_match.cbm      # Trained CatBoost model binary
 │   ├── fiber_match_metadata.json     # Feature columns, artisan registry, best params
@@ -384,6 +390,11 @@ erDiagram
 - PySpark feature engineering scales the pair-matrix construction to production-size donor and artisan tables without refactoring.
 - The pipeline is fully export-ready: `catboost_fiber_match.cbm` + `fiber_match_metadata.json` are copied to the Django API at the end of Section 8.
 
+### Edited
+
+- **Historical catalog archiving** was added to `webscraper_extraction.ipynb` (Section 1-D): each scrape run merges into a cumulative `webscraped_catalog_archive.csv`, stamping every product with `first_scraped_at`, `last_seen_at`, and `is_active`. Products absent from the latest run automatically flip to `is_active = False`. After the archive merge, `BRAND_FIBER_LOOKUP` is enriched with any brands present in the archive but missing from the current scrape — so `brand_fiber_lookup.json` written by Save Outputs and consumed by the recommendation model reflects the full historical brand set, not just the current-run snapshot.
+- **Discontinued-item fiber approximation** (`fiber_approximation()`, Section 1-E) infers a plausible fiber profile for donor requests referencing garments no longer in the live catalogue. Named `fiber_approximation` (not `fiber_match`) to distinguish it from the `is_match` binary classification performed by CatBoost in the recommendation model. The function applies a **Greedy Priority-Ordered Nearest-Neighbour Lookup** across the historical archive — resolving fiber composition through four priority tiers: (1) exact brand + clothing_type from archive, (2) brand match any clothing type, (3) clothing_type median profile across all archived brands, (4) global median profile. Greedy early-exit returns the most specific approximation available at query time. Output keys (`fiber_json`, `most_dominant_fiber`, `fs_bio_share`, `fs_biodeg_tier`, `approx_tier`, `approx_reason`) are schema-compatible with `brand_fiber_lookup.json`, requiring no changes to the downstream ML pipeline.
+
 ---
 
 ## Roles & Responsibilities
@@ -398,6 +409,8 @@ erDiagram
 - Produced a normalized confusion matrix and FP/FN bar chart confirming zero false routing decisions (Precision = 1.00) — 10/11 true matches correctly captured, with the single FN being a distance failure on a 100% target-fiber garment.
 - Generated 11 diagnostic visualizations including KDE of biodegradability scores, donation volume by NCR city, fiber KPI heatmaps, a Spearman correlation heatmap across fiber percentages and biodeg/demand features, brand distribution, and a SHAP summary plot identifying `pct_target_fiber`, `distance_km`, and `biodeg_target_fiber` as the primary `is_match` drivers.
 - Exported the trained model artifacts (`catboost_fiber_match.cbm`, `fiber_match_metadata.json`, `fiber_match_eval_report_latest.json`) to the WeaveForward Django API via `DJANGO_ML_DIR` environment variable for live inference at `/api/match-predict/`.
+- Designed and implemented a cumulative historical product archive (`webscraped_catalog_archive.csv`) in `webscraper_extraction.ipynb` (Section 1-D) — merges every scrape run into a single growing record keyed on `(brand, product_name)`, tracking `first_scraped_at`, `last_seen_at`, and `is_active` provenance per product; items absent from the latest run are automatically marked `is_active = False`; after each archive merge, `BRAND_FIBER_LOOKUP` is enriched in-place with median fiber profiles for any brands present in the archive but missing from the current scrape, ensuring `brand_fiber_lookup.json` written by Save Outputs and read by the recommendation model covers the full historical brand set rather than only the current-run snapshot.
+- Built `fiber_approximation()` (Section 1-E) implementing a **Greedy Priority-Ordered Nearest-Neighbour Lookup** across the historical archive for donor requests referencing garments no longer in the live catalogue — function is intentionally named `fiber_approximation` (not `fiber_match`) to distinguish archive-based profile inference from the `is_match` binary classification performed by CatBoost in the recommendation model; resolves fiber composition through four deterministic tiers (exact brand+type → brand-only match → clothing-type median profile → global median), returning a schema-compatible dict (`fiber_json`, `most_dominant_fiber`, `fs_bio_share`, `fs_biodeg_tier`, `approx_tier`, `approx_reason`) that integrates directly with the existing Section 5-B-1 feature engineering step in the main ML notebook.
 
 ---
 
