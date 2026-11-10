@@ -50,7 +50,7 @@ The pipeline solves garment-to-artisan matching by:
 ## ETL Pipeline
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
+%%{init: {'theme': 'base', 'flowchart': {'curve': 'step'}, 'themeVariables': {'primaryColor': '#ffffff', 'primaryBorderColor': '#000000', 'primaryTextColor': '#000000', 'lineColor': '#000000', 'secondaryColor': '#ffffff', 'tertiaryColor': '#ffffff', 'mainBkg': '#ffffff', 'nodeBorder': '#000000', 'clusterBkg': '#ffffff', 'clusterBorder': '#000000', 'edgeLabelBackground': '#ffffff', 'attributeBackgroundColorOdd': '#ffffff', 'attributeBackgroundColorEven': '#ffffff'}}}%%
 flowchart TD
     A["Web Scraper<br/>webscraper_extraction.py"] -->|scraper.py| B["webscraped_catalog.csv<br/>raw brand fiber records"]
     A -->|archive merge · 1-D| B2["webscraped_catalog_archive.csv<br/>first_scraped_at · last_seen_at · is_active"]
@@ -289,6 +289,7 @@ WeaveForward_FiberClassificationML/
 The ERD below reflects the logical data model used by the WeaveForward Django API. The pipeline's feature matrix is derived from these entities.
 
 ```mermaid
+%%{init: {'theme': 'base', 'flowchart': {'curve': 'step'}, 'themeVariables': {'primaryColor': '#ffffff', 'primaryBorderColor': '#000000', 'primaryTextColor': '#000000', 'lineColor': '#000000', 'secondaryColor': '#ffffff', 'tertiaryColor': '#ffffff', 'mainBkg': '#ffffff', 'nodeBorder': '#000000', 'clusterBkg': '#ffffff', 'clusterBorder': '#000000', 'edgeLabelBackground': '#ffffff', 'attributeBackgroundColorOdd': '#ffffff', 'attributeBackgroundColorEven': '#ffffff'}}}%%
 erDiagram
     donation_requests {
         string donation_id PK
