@@ -413,6 +413,28 @@ erDiagram
 - Designed and implemented a cumulative historical product archive (`webscraped_catalog_archive.csv`) in `webscraper_extraction.ipynb` (Section 1-D) — merges every scrape run into a single growing record keyed on `(brand, product_name)`, tracking `first_scraped_at`, `last_seen_at`, and `is_active` provenance per product; items absent from the latest run are automatically marked `is_active = False`; after each archive merge, `BRAND_FIBER_LOOKUP` is enriched in-place with median fiber profiles for any brands present in the archive but missing from the current scrape, ensuring `brand_fiber_lookup.json` written by Save Outputs and read by the recommendation model covers the full historical brand set rather than only the current-run snapshot.
 - Built `fiber_approximation()` (Section 1-E) implementing a **Greedy Priority-Ordered Nearest-Neighbour Lookup** across the historical archive for donor requests referencing garments no longer in the live catalogue — function is intentionally named `fiber_approximation` (not `fiber_match`) to distinguish archive-based profile inference from the `is_match` binary classification performed by CatBoost in the recommendation model; resolves fiber composition through four deterministic tiers (exact brand+type → brand-only match → clothing-type median profile → global median), returning a schema-compatible dict (`fiber_json`, `most_dominant_fiber`, `fs_bio_share`, `fs_biodeg_tier`, `approx_tier`, `approx_reason`) that integrates directly with the existing Section 5-B-1 feature engineering step in the main ML notebook.
 
+### WeaveForward Platform Contributions
+
+The fiber-match model above serves the WeaveForward platform ([bakuncwa/WeaveForward](https://github.com/bakuncwa/WeaveForward)). Contributions to the platform around it:
+
+- Architected a physically decoupled 3-tier, GCP-native platform: Django BFF/SSR and Django REST Framework on dual Cloud Run instances for independent service orchestration, with Cloud SQL, Cloud Storage and Cloud Scheduler.
+- Deployed both services through GitHub Actions on every push to main: Docker images built and released to Cloud Run, authenticated with keyless Workload Identity Federation instead of stored service-account keys.
+- Secured authentication with bcrypt password hashing and simple-jwt, applying role-based access control across donors, free and premium TUABs and administrators, with CORS and XSS protections across application layers.
+- Integrated a ₱499/month TUAB subscription through the Maya payment gateway, with OpenStreetMap geolocation and Lalamove delivery.
+
+### User Acceptance Testing
+
+- 100% task completion across all donor and TUAB workflows, with overall satisfaction averaging 3.57 to 4.00 on a 4-point scale.
+- Donors gave perfect scores to registration and geolocation-based TUAB discovery (4.00), with donation tracking and the impact leaderboard at 3.86.
+- TUAB subscription management, inventory archiving, overall experience and platform fit all closed at 100% Strongly Agree.
+- Interface clarity and loading speed each reached 90% Strongly Agree with zero negative ratings across all roles.
+- Fed findings back into the build, identifying 2FA setup guidance, TUAB registration complexity and donation edit button labeling as the improvement areas.
+
+### Leadership
+
+- Led the team as Team Leader from problem framing through deployment, and earned a Best Capstone nomination.
+- Identified a market-access gap between independent fiber artisans and buyers, validating the business case through UX testing with 10 artisan businesses and market research across 200+ Metro Manila stakeholders, for a post-deployment CSAT of 95%+.
+
 ---
 
 ## References
